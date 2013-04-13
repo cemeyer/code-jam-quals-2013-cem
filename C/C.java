@@ -4,7 +4,7 @@ import java.util.*;
 
 public class C {
     public static boolean debug = false ;
-    public static boolean time = false ;
+    public static boolean time = true ;
 
     public static void main(String[] args) {
         Scanner s = new Scanner(new BufferedInputStream(System.in));
@@ -49,15 +49,21 @@ public class C {
         char[][] siP = new char[1][];
         siP[0] = si;
 
-        boolean brk = false;
-        for (; !brk; incr10(siP)) {
-            if (Arrays.equals(siP[0], sB))
-                brk = true;
+        if (!palindrome(siP[0])) {
+            // short circuit if start==end
+            if (rA.equals(rB))
+                return ans.toString();
 
+            incr_pal(siP);
+        }
+
+        for (;; incr_pal(siP)) {
             if (!palindrome(siP[0]))
-                continue;
+                throw new AssertionError("XXX");
 
             BigInteger i = new BigInteger(new String(siP[0]));
+            if (i.compareTo(rB) > 0)
+                break;
 
             BigInteger iS = i.multiply(i);
             if (!palindrome(iS.toString().toCharArray()))
@@ -69,11 +75,15 @@ public class C {
         return ans.toString();
     }
 
-    public static void incr10(char[][] siP) {
+    // Get to next palindrome (ascending)
+    public static void incr_pal(char[][] siP) {
         char c = 1;
         char[] si = siP[0];
 
-        for (int i = si.length-1; i >= 0; i--) {
+        int mid = (si.length - 1) / 2;
+
+        // Add w/carry to midpoint, carry out (left)
+        for (int i = mid; i >= 0; i--) {
             char d = (char)(si[i] + c);
             if (d > '9') {
                 si[i] = '0';
@@ -87,9 +97,17 @@ public class C {
 
         if (c > 0) {
             String longer = "1";
-            for (int i = 0; i < si.length; i++)
+            for (int i = 0; i < si.length - 1; i++)
                 longer += "0";
+            longer += "1";
             siP[0] = longer.toCharArray();
+        } else {
+            // Copy over to the rest
+            for (int i = mid+1; i < si.length; i++) {
+                int ci = si.length - 1 - i;
+
+                si[i] = si[ci];
+            }
         }
     }
 
